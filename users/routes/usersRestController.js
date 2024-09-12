@@ -3,6 +3,7 @@ const {
   registerUser,
   getUser,
   getUsers,
+  loginUser,
 } = require("../models/usersAccessDataService");
 
 const router = express.Router();
@@ -11,6 +12,16 @@ router.post("/", async (req, res) => {
   try {
     let user = await registerUser(req.body);
     res.send(user);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    let { email, password } = req.body;
+    const token = await loginUser(email, password);
+    res.send(token);
   } catch (error) {
     res.status(400).send(error.message);
   }
