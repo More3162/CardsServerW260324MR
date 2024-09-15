@@ -7,6 +7,7 @@ const PORT = 8181;
 
 app.use(corsMiddleware);
 app.use(express.json());
+app.use(express.static("./public"));
 
 app.use((req, res, next) => {
   console.log(
@@ -19,6 +20,7 @@ app.use(router);
 
 app.use((err, req, res, next) => {
   console.log(err);
+
   res.status(500).send("internal error of the server");
 });
 

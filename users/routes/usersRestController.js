@@ -5,6 +5,7 @@ const {
   getUsers,
   loginUser,
 } = require("../models/usersAccessDataService");
+const auth = require("../../auth/authService");
 
 const router = express.Router();
 
@@ -27,9 +28,19 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   try {
+    const userInfo = req.user;
     const { id } = req.params;
+
+    if (userInfo._id !== id && !userInfo.isAdmin) {
+      return res
+        .status(403)
+        .send(
+          "Authorization Error: Only the same user or admin can get user info"
+        );
+    }
+
     let user = await getUser(id);
     res.send(user);
   } catch (error) {

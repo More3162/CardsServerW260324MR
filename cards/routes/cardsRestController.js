@@ -9,6 +9,8 @@ const {
   likeCard,
 } = require("../models/cardsAccessDataService");
 const auth = require("../../auth/authService");
+const { normalizeCard } = require("../helpers/normalizeCard");
+const { handleError } = require("../../utils/handleErrors");
 const router = express.Router();
 
 router.post("/", auth, async (req, res) => {
@@ -17,11 +19,11 @@ router.post("/", auth, async (req, res) => {
     if (!userInfo.isBusiness) {
       return res.status(403).send("Only business user can create new card");
     }
-
-    let card = await createCard(req.body);
-    res.send(card);
+    let card = await normalizeCard(req.body, userInfo._id);
+    card = await createCard(card);
+    res.status(201).send(card);
   } catch (error) {
-    res.status(400).send(error.message);
+    handleError(res, 400, error.message);
   }
 });
 
@@ -36,8 +38,11 @@ router.get("/", async (req, res) => {
 
 router.get("/my-cards", auth, async (req, res) => {
   try {
-    const { id } = req.body;
-    let card = await getMyCards(id);
+    const userInfo = req.user;
+    if (!userInfo.isBusiness) {
+      return res.status(403).send("Only business user can get my card");
+    }
+    let card = await getMyCards(userInfo._id);
     res.send(card);
   } catch (error) {
     res.status(400).send(error.message);
@@ -56,9 +61,19 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", auth, async (req, res) => {
   try {
-    const { id } = req.params;
+    const userInfo = req.user;
     const newCard = req.body;
-    let card = await updateCard(id, newCard);
+    const { id } = req.params;
+    const fullCardFromDb = await getCard(id);
+    if (userInfo._id !== fullCardFromDb.user_id && !userInfo.isAdmin) {
+      return res
+        .status(403)
+        .send(
+          "Authorization Error: Only the user who created the business card or admin can update its details"
+        );
+    }
+    let card = await normalizeCard(newCard, userInfo._id);
+    card = await updateCard(id, card);
     res.send(card);
   } catch (error) {
     res.status(400).send(error.message);
@@ -67,7 +82,17 @@ router.put("/:id", auth, async (req, res) => {
 
 router.delete("/:id", auth, async (req, res) => {
   try {
+    const userInfo = req.user;
     const { id } = req.params;
+    const fullCardFromDb = await getCard(id);
+    if (userInfo._id !== fullCardFromDb.user_id && !userInfo.isAdmin) {
+      return res
+        .status(403)
+        .send(
+          "Authorization Error: Only the user who created the business card or admin can delete this card"
+        );
+    }
+
     let card = await deleteCard(id);
     res.send(card);
   } catch (error) {
@@ -78,7 +103,7 @@ router.delete("/:id", auth, async (req, res) => {
 router.patch("/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = req.body;
+    const userId = req.user._id;
     let card = await likeCard(id, userId);
     res.send(card);
   } catch (error) {
