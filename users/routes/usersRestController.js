@@ -7,11 +7,18 @@ const {
 } = require("../models/usersAccessDataService");
 const auth = require("../../auth/authService");
 const { handleError } = require("../../utils/handleErrors");
+const {
+  validateRegistration,
+  validateLogin,
+} = require("../validation/userValidationService");
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
+    const error = validateRegistration(req.body);
+    if (error) return handleError(res, 400, `Joi Error: ${error}`);
+
     let user = await registerUser(req.body);
     res.send(user);
   } catch (error) {
@@ -21,6 +28,9 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+    const error = validateLogin(req.body);
+    if (error) return handleError(res, 400, `Joi Error: ${error}`);
+
     let { email, password } = req.body;
     const token = await loginUser(email, password);
     res.send(token);
