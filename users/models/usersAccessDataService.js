@@ -1,6 +1,7 @@
 const { generateAuthToken } = require("../../auth/providers/jwt");
 const _ = require("lodash");
 const User = require("./mongodb/User");
+const { createError } = require("../../utils/handleErrors");
 
 const registerUser = async (newUser) => {
   try {
@@ -11,7 +12,7 @@ const registerUser = async (newUser) => {
 
     return user;
   } catch (error) {
-    throw new Error("Mongoose " + error.message);
+    return createError("Mongoose", error);
   }
 };
 
@@ -20,7 +21,7 @@ const getUser = async (userId) => {
     let user = await User.findById(userId);
     return user;
   } catch (error) {
-    throw new Error("Mongoose " + error.message);
+    return createError("Mongoose", error);
   }
 };
 
@@ -29,23 +30,28 @@ const getUsers = async () => {
     let users = await User.find();
     return users;
   } catch (error) {
-    throw new Error("Mongoose " + error.message);
+    return createError("Mongoose", error);
   }
 };
 
 const loginUser = async (email, password) => {
   try {
     const userFromDb = await User.findOne({ email });
+
     if (!userFromDb) {
-      throw new Error("Authentication Error: Invalid email or password");
+      const error = new Error("Invalid email or password");
+      error.status = 401;
+      return createError("Authentication", error);
     }
     if (userFromDb.password !== password) {
-      throw new Error("Authentication Error: Invalid email or password");
+      const error = new Error("Invalid email or password");
+      error.status = 401;
+      return createError("Authentication", error);
     }
     const token = generateAuthToken(userFromDb);
     return token;
   } catch (error) {
-    throw new Error(error);
+    return createError("Mongoose", error);
   }
 };
 
