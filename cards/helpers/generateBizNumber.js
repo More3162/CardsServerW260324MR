@@ -13,7 +13,7 @@ const generateBizNumber = async () => {
   }
   let random;
   do {
-    random = _.random(1_000_000, 9_999_9999);
+    random = _.random(1_000_000, 9_999_999);
   } while (await isBizNumberExists(random));
 
   return random;

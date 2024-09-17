@@ -1,8 +1,11 @@
 const express = require("express");
+const chalk = require("chalk");
+
 const connectToDb = require("./DB/dbService");
 const router = require("./router/router");
 const corsMiddleware = require("./middlewares/cors");
 const { handleError } = require("./utils/handleErrors");
+
 const app = express();
 const PORT = 8181;
 
@@ -25,6 +28,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log("app is listening to port " + PORT);
+  console.log(chalk.yellow("app is listening to port " + PORT));
   connectToDb();
 });

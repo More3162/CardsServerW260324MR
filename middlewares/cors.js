@@ -5,6 +5,7 @@ const corsMiddleware = cors({
     "http://127.0.0.1:5500",
     "www.tzachCards.co.il",
     "http://localhost:5500",
+    "http://localhost:3000",
   ],
 });
 
