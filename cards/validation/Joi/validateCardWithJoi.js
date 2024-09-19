@@ -42,6 +42,7 @@ const validateCardWithJoi = (card) => {
       })
       .required(),
   });
+
   return schema.validate(card);
 };
 
