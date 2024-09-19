@@ -1,24 +1,21 @@
 const express = require("express");
 const chalk = require("chalk");
-
+const morgan = require("morgan");
 const connectToDb = require("./DB/dbService");
 const router = require("./router/router");
 const corsMiddleware = require("./middlewares/cors");
 const { handleError } = require("./utils/handleErrors");
+const loggerMiddleware = require("./logger/loggerService");
 
 const app = express();
 const PORT = 8181;
 
 app.use(corsMiddleware);
 app.use(express.json());
-app.use(express.static("./public"));
 
-app.use((req, res, next) => {
-  console.log(
-    `Request URL: ${req.url} | Method: ${req.method} | Time: ${new Date()}`
-  );
-  next();
-});
+app.use(loggerMiddleware());
+
+app.use(express.static("./public"));
 
 app.use(router);
 
