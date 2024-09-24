@@ -1,6 +1,6 @@
 const express = require("express");
 const chalk = require("chalk");
-const morgan = require("morgan");
+require("dotenv").config();
 const connectToDb = require("./DB/dbService");
 const router = require("./router/router");
 const corsMiddleware = require("./middlewares/cors");

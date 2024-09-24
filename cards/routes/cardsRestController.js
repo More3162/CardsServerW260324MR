@@ -72,7 +72,10 @@ router.put("/:id", auth, async (req, res) => {
     const newCard = req.body;
     const { id } = req.params;
     const fullCardFromDb = await getCard(id);
-    if (userInfo._id !== fullCardFromDb.user_id && !userInfo.isAdmin) {
+    if (
+      userInfo._id !== fullCardFromDb.user_id.toString() &&
+      !userInfo.isAdmin
+    ) {
       return handleError(
         res,
         403,
@@ -98,7 +101,10 @@ router.delete("/:id", auth, async (req, res) => {
     const userInfo = req.user;
     const { id } = req.params;
     const fullCardFromDb = await getCard(id);
-    if (userInfo._id !== fullCardFromDb.user_id && !userInfo.isAdmin) {
+    if (
+      userInfo._id !== fullCardFromDb.user_id.toString() &&
+      !userInfo.isAdmin
+    ) {
       return handleError(
         res,
         403,

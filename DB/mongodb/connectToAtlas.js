@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
 
-const connectionStringForAtlas = "";
+const connectionStringForAtlas = process.env.ATLAS_CONNECTION_STRING;
 
-const connectToAtlaslDb = async () => {
+const connectToAtlasDb = async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://tzachd1232:Abc123@businesscardappprod.cunmyjr.mongodb.net/?retryWrites=true&w=majority&appName=BusinessCardAppProd"
-    );
+    console.log(connectionStringForAtlas);
+    await mongoose.connect(connectionStringForAtlas);
     console.log("Connected to MongoDB in atlas");
   } catch (error) {
     console.error("Could not connect to MongoDB", error);
   }
 };
 
-module.exports = connectToAtlaslDb;
+module.exports = connectToAtlasDb;
